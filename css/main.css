@@ -1,0 +1,17 @@
+/* 
+    Document   : main
+    Created on : Apr 17, 2013, 6:05:42 PM
+    Author     : Owner
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+root { 
+    display: block;
+}
+
+#canvas-wrapper {
+    width:800px;
+    height:600px;
+}
+
