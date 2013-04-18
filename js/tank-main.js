@@ -4,23 +4,22 @@ function main() {
     var CANVAS_WITDH = document.getElementById("TankCanvas").width;
     var CANVAS_HEIGHT = document.getElementById("TankCanvas").height;
     var keys = {};
-    var UP = 87;    //W
-    var DOWN = 83;  //S
-    var LEFT = 65;  //A
-    var RIGHT = 68; //D
+    var level;
+    var entities;
     
     function inputHandler(e) {
         console.log("inside inputHandler  +" + e.type);
         if (e.type === "keydown") {
             keys[e.keyCode] = true;
         } else if (e.type === "keyup") {
-            keys[e.keyCode] = false;
+            delete keys[e.keyCode];
         }
         console.log(keys);
     }
     
     (function init() {
-        var entities = createEntities();
+        entities = createEntities();
+        level = new Level();
         var canvas = document.getElementById("TankCanvas");
         var context = canvas.getContext("2d");
         canvas.focus();
@@ -30,8 +29,8 @@ function main() {
         setInterval(gameLoop, 10);
 
         function gameLoop() {
-            update(entities);
-            render(entities, context);  
+            update();
+            render(context);
         }
     })();
     
@@ -42,15 +41,54 @@ function main() {
         return entities;
     }
 
-    function update(entities) {
+    function Level() {
+        this.xSize = 20;
+        this.ySize = 15;
+        this.map = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    1,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+    }
+    
+    Level.prototype.render = function(context) {
+        var width = CANVAS_WITDH/this.xSize;
+        
+        for (var i = 0; i < this.map.length; i++) {
+            switch(this.map[i]) {
+            case 0:
+                context.fillStyle = "#00CC00";
+                break;
+            case 1:
+                context.fillStyle = "#CCCCFF";
+                break;
+            }
+            
+            context.fillRect((i % this.xSize) * width , Math.floor(i / this.xSize) * width, width, width);
+        }
+    };
+
+    function update() {
         for (var i = 0; i < entities.length; i++) {
             entities[i].update();
         }
     }
 
-    function render(entities, context) {
+    function render(context) {
         context.fillStyle = "white";
         context.fillRect(0, 0, CANVAS_WITDH, CANVAS_HEIGHT);
+        
+        level.render(context);
         for (var i = 0; i < entities.length; i++) {
             entities[i].render(context);
         }
@@ -62,8 +100,6 @@ function main() {
         this.width = 25;
         this.height = 25;
         this.speed = 2;
-        this.dirX = 1;
-        this.dirY = 0;
         this.render = function(context) {
             context.fillStyle="#FFA100";
             context.fillRect(this.x, this.y, this.width, this.height);
@@ -71,10 +107,23 @@ function main() {
     }
 
     Tank.prototype.move = function() {
-        var that = this;
-        setDirection();
-        this.x += this.speed * this.dirX;
-        this.y += this.speed * this.dirY;
+        var UP = 87;    //W
+        var DOWN = 83;  //S
+        var LEFT = 65;  //A
+        var RIGHT = 68; //D
+
+        if (keys[UP]) {
+            this.y -= this.speed;
+        } 
+        if (keys[DOWN]) {
+            this.y += this.speed;
+        } 
+        if (keys[RIGHT]) {
+            this.x += this.speed;
+        } 
+        if (keys[LEFT]) {
+            this.x -= this.speed;
+        } 
         
         if (this.x + this.width > CANVAS_WITDH) {
             this.x = CANVAS_WITDH - this.width;
@@ -86,41 +135,6 @@ function main() {
         } else if (this.y < 0) {
             this.y = 0;
         }
-        
-        function setDirection() {
-            if (keys[UP]) {
-                that.dirY = -1;
-            } else if (that.dirY === -1) {
-                that.dirY = 0;
-            }
-            if (keys[DOWN]) {
-                that.dirY = 1;
-            } else if (that.dirY ===1) {
-                that.dirY = 0;
-            }
-            if (keys[RIGHT]) {
-                that.dirX = 1;
-            } else if (that.dirX === 1) {
-                that.dirX = 0;
-            }
-            if (keys[LEFT]) {
-                that.dirX = -1;
-            } else if (that.dirX === -1) {
-                that.dirX = 0;
-            }
-        }
-    };
-
-    Tank.prototype.setSpeedX = function(sx) {
-        this.speedX = sx;
-    };
-
-    Tank.prototype.setSpeedY = function(sy) {
-        this.speedY = sy;
-    };
-
-    Tank.prototype.setDirection = function(direction) {
-        this.dir = direction;
     };
 
     Tank.prototype.update = function() {
