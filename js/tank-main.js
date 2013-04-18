@@ -75,6 +75,8 @@ function main() {
             }
             
             context.fillRect((i % this.xSize) * width , Math.floor(i / this.xSize) * width, width, width);
+            context.fillStyle = "#000000";
+            context.strokeRect((i % this.xSize) * width , Math.floor(i / this.xSize) * width, width, width);
         }
     };
 
@@ -124,7 +126,9 @@ function main() {
         if (keys[LEFT]) {
             this.x -= this.speed;
         } 
-        
+    };
+    
+    Tank.prototype.handleCollisions = function() {
         if (this.x + this.width > CANVAS_WITDH) {
             this.x = CANVAS_WITDH - this.width;
         } else if (this.x < 0) {
@@ -135,10 +139,13 @@ function main() {
         } else if (this.y < 0) {
             this.y = 0;
         }
+        
+        
     };
 
     Tank.prototype.update = function() {
         this.move();
+        this.handleCollisions();
     };
 }
 
