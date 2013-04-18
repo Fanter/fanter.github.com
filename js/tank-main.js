@@ -4,22 +4,20 @@ function main() {
     var CANVAS_WITDH = document.getElementById("TankCanvas").width;
     var CANVAS_HEIGHT = document.getElementById("TankCanvas").height;
     var keys = {};
-    var level;
+    var map;
     var entities;
     
     function inputHandler(e) {
-        console.log("inside inputHandler  +" + e.type);
         if (e.type === "keydown") {
             keys[e.keyCode] = true;
         } else if (e.type === "keyup") {
             delete keys[e.keyCode];
         }
-        console.log(keys);
     }
     
     (function init() {
         entities = createEntities();
-        level = new Level();
+        map = new Map();
         var canvas = document.getElementById("TankCanvas");
         var context = canvas.getContext("2d");
         canvas.focus();
@@ -41,7 +39,7 @@ function main() {
         return entities;
     }
 
-    function Level() {
+    function Map() {
         this.xSize = 20;
         this.ySize = 15;
         this.map = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -61,7 +59,7 @@ function main() {
                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
     }
     
-    Level.prototype.render = function(context) {
+    Map.prototype.render = function(context) {
         var width = CANVAS_WITDH/this.xSize;
         
         for (var i = 0; i < this.map.length; i++) {
@@ -77,7 +75,17 @@ function main() {
             context.fillRect((i % this.xSize) * width , Math.floor(i / this.xSize) * width, width, width);
             context.fillStyle = "#000000";
             context.strokeRect((i % this.xSize) * width , Math.floor(i / this.xSize) * width, width, width);
+        }//for
+    };
+    
+    Map.prototype.isBlocked = function(x, y) {
+        var cellWidth = CANVAS_WITDH/this.xSize;
+        var cellNumber = Math.floor(x/cellWidth) + (Math.floor(y/cellWidth))*this.xSize;
+        if (this.map[cellNumber] === 1) {
+            console.log(cellNumber + " x: " + x + " y: " +y);
+            return true;
         }
+        return false;
     };
 
     function update() {
@@ -90,7 +98,7 @@ function main() {
         context.fillStyle = "white";
         context.fillRect(0, 0, CANVAS_WITDH, CANVAS_HEIGHT);
         
-        level.render(context);
+        map.render(context);
         for (var i = 0; i < entities.length; i++) {
             entities[i].render(context);
         }
@@ -99,12 +107,11 @@ function main() {
     function Tank() {
         this.x = 120;
         this.y = 120;
-        this.width = 25;
-        this.height = 25;
+        this.size = 25;
         this.speed = 2;
         this.render = function(context) {
             context.fillStyle="#FFA100";
-            context.fillRect(this.x, this.y, this.width, this.height);
+            context.fillRect(this.x, this.y, this.size, this.size);
         };
     }
 
@@ -113,19 +120,28 @@ function main() {
         var DOWN = 83;  //S
         var LEFT = 65;  //A
         var RIGHT = 68; //D
+        var dx = 0;
+        var dy = 0;
 
         if (keys[UP]) {
-            this.y -= this.speed;
+            dy -= this.speed;
         } 
         if (keys[DOWN]) {
-            this.y += this.speed;
+            dy += this.speed;
         } 
         if (keys[RIGHT]) {
-            this.x += this.speed;
+            dx += this.speed;
         } 
         if (keys[LEFT]) {
-            this.x -= this.speed;
-        } 
+            dx -= this.speed;
+        }
+        
+        var nx = this.x + dx;
+        var ny = this.y + dy;
+        if (this.isValidLocation(nx, ny)) {
+            this.x = nx;
+            this.y = ny;
+        }
     };
     
     Tank.prototype.handleCollisions = function() {
@@ -138,9 +154,24 @@ function main() {
             this.y = CANVAS_HEIGHT - this.height;
         } else if (this.y < 0) {
             this.y = 0;
-        }
-        
-        
+        }    
+    };
+    
+    Tank.prototype.isValidLocation = function(nx, ny) {
+        if (map.isBlocked(nx, ny)) {
+            return false;
+	}
+	if (map.isBlocked(nx + this.size, ny)) {
+            return false;
+	}
+	if (map.isBlocked(nx, ny + this.size)) {
+            return false;
+	}
+	if (map.isBlocked(nx + this.size, ny + this.size)) {
+            return false;
+	}
+		
+	return true;
     };
 
     Tank.prototype.update = function() {
