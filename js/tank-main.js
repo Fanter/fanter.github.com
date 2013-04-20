@@ -115,7 +115,7 @@ function main() {
         this.angle = 0;
         this.speed = 2;
         this.frame = 0;
-        this.msPerFrame = 20;
+        this.msPerFrame = 15;
         this.summDelta = 0;
         this.lastUpdateTime = 0;
         var img = new Image();
@@ -125,7 +125,7 @@ function main() {
     
     Tank.prototype.render = function(context) {
         var delta = Date.now() - this.lastUpdateTime;
-        if (this.summDelta > this.msPerFrame) {
+        if (this.summDelta > this.msPerFrame && this.isMoving()) {
             this.summDelta = 0;
             this.frame += 1;
             if (this.frame > 3) {
@@ -178,6 +178,10 @@ function main() {
             this.x = nx;
             this.y = ny;
         }
+    };
+    
+    Tank.prototype.isMoving = function() {
+        return keys[UP] || keys[DOWN] || keys[RIGHT] || keys[LEFT];
     };
     
     Tank.prototype.handleCollisions = function(nx, ny) {
