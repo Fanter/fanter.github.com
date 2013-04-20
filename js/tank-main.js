@@ -218,6 +218,15 @@ function main() {
     Tank.prototype.update = function() {
         this.move();
     };
+    
+    function Bullet() {
+        this.x = 0;
+        this.y = 0;
+        this.width = 5;
+        this.height = 10;
+    }
+    
+    
 }
 
 
