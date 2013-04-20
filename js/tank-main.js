@@ -1,6 +1,7 @@
 window.onload = main();
 
 function main() {
+    var GAME_RATE = 1000/40; //fps
     var CANVAS_WITDH = document.getElementById("TankCanvas").width;
     var CANVAS_HEIGHT = document.getElementById("TankCanvas").height;
     var keys = {};
@@ -24,7 +25,7 @@ function main() {
         canvas.addEventListener("keydown", inputHandler, false);
         canvas.addEventListener("keyup", inputHandler, false);
 
-        setInterval(gameLoop, 10);
+        setInterval(gameLoop, GAME_RATE);
 
         function gameLoop() {
             update();
@@ -43,16 +44,16 @@ function main() {
         this.xSize = 20;
         this.ySize = 15;
         this.map = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                    1,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,
-                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,
+                    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
+                    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
+                    1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
+                    1,1,1,1,1,1,0,1,1,1,1,0,0,0,0,0,0,0,1,0,
+                    0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1,1,1,0,
+                    0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,
+                    0,0,1,1,1,1,0,1,1,1,0,0,1,0,0,0,1,0,0,0,
+                    0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,
+                    0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,
                     0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,
                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -82,7 +83,6 @@ function main() {
         var cellWidth = CANVAS_WITDH/this.xSize;
         var cellNumber = Math.floor(x/cellWidth) + (Math.floor(y/cellWidth))*this.xSize;
         if (this.map[cellNumber] === 1) {
-            console.log(cellNumber + " x: " + x + " y: " +y);
             return true;
         }
         return false;
@@ -107,13 +107,23 @@ function main() {
     function Tank() {
         this.x = 120;
         this.y = 120;
-        this.size = 25;
+        this.size = 36;
         this.speed = 2;
-        this.render = function(context) {
-            context.fillStyle="#FFA100";
-            context.fillRect(this.x, this.y, this.size, this.size);
-        };
+        this.frame = 0;
+        var img = new Image();
+        img.src = 'images/tank_t/tank_sprite.png';
+        this.image = img;
     }
+    
+    Tank.prototype.render = function(context) {
+        context.fillStyle="#FFA100";
+        //context.fillRect(this.x, this.y, this.size, this.size);
+        this.frame += 1;
+        if (this.frame > 3) {
+            this.frame = 0;
+        }
+        context.drawImage(this.image, 0, 36*this.frame, 36, 36, this.x, this.y, 36, 36);
+    };
 
     Tank.prototype.move = function() {
         var UP = 87;    //W
@@ -138,23 +148,24 @@ function main() {
         
         var nx = this.x + dx;
         var ny = this.y + dy;
-        if (this.isValidLocation(nx, ny)) {
+        if (this.isValidLocation(nx, ny) && this.handleCollisions(nx, ny)) {
             this.x = nx;
             this.y = ny;
         }
     };
     
-    Tank.prototype.handleCollisions = function() {
-        if (this.x + this.width > CANVAS_WITDH) {
-            this.x = CANVAS_WITDH - this.width;
-        } else if (this.x < 0) {
-            this.x = 0;
+    Tank.prototype.handleCollisions = function(nx, ny) {
+        if (nx + this.size > CANVAS_WITDH) {
+            return false;
+        } else if (nx < 0) {
+            return false;
         }
-        if (this.y + this.height > CANVAS_HEIGHT) {
-            this.y = CANVAS_HEIGHT - this.height;
-        } else if (this.y < 0) {
-            this.y = 0;
-        }    
+        if (ny + this.size > CANVAS_HEIGHT) {
+            return false;
+        } else if (ny < 0) {
+            return false;
+        }
+        return true;
     };
     
     Tank.prototype.isValidLocation = function(nx, ny) {
@@ -176,7 +187,6 @@ function main() {
 
     Tank.prototype.update = function() {
         this.move();
-        this.handleCollisions();
     };
 }
 
