@@ -1,13 +1,17 @@
 window.onload = main();
 
 function main() {
-    var GAME_RATE = 1000/40; //fps
+    var GAME_RATE = 1000/60; //fps
     var CANVAS_WITDH = document.getElementById("TankCanvas").width;
     var CANVAS_HEIGHT = document.getElementById("TankCanvas").height;
     var keys = {};
     var map;
     var entities;
-    
+    var UP = 87;    //W
+    var DOWN = 83;  //S
+    var LEFT = 65;  //A
+    var RIGHT = 68; //D
+
     function inputHandler(e) {
         if (e.type === "keydown") {
             keys[e.keyCode] = true;
@@ -108,28 +112,50 @@ function main() {
         this.x = 120;
         this.y = 120;
         this.size = 36;
+        this.angle = 0;
         this.speed = 2;
         this.frame = 0;
+        this.msPerFrame = 20;
+        this.summDelta = 0;
+        this.lastUpdateTime = 0;
         var img = new Image();
         img.src = 'images/tank_t/tank_sprite.png';
         this.image = img;
     }
     
     Tank.prototype.render = function(context) {
-        context.fillStyle="#FFA100";
-        //context.fillRect(this.x, this.y, this.size, this.size);
-        this.frame += 1;
-        if (this.frame > 3) {
-            this.frame = 0;
+        var delta = Date.now() - this.lastUpdateTime;
+        if (this.summDelta > this.msPerFrame) {
+            this.summDelta = 0;
+            this.frame += 1;
+            if (this.frame > 3) {
+                this.frame = 0;
+            }
+        } else {
+            this.summDelta += delta;
         }
-        context.drawImage(this.image, 0, 36*this.frame, 36, 36, this.x, this.y, 36, 36);
+        this.lastUpdateTime = Date.now();
+        
+        if (keys[UP]) {
+            this.angle = 0;
+        }
+        if (keys[DOWN]) {
+            this.angle = 180;
+        }
+        if (keys[RIGHT]) {
+            this.angle = 90;
+        }
+        if (keys[LEFT]) {
+            this.angle = 270;
+        }
+        context.save();
+        context.translate(this.x + this.size/2, this.y + this.size/2);
+        context.rotate(this.angle * Math.PI/180);
+        context.drawImage(this.image, 0, 36*this.frame, 36, 36, -this.size/2, -this.size/2, 36, 36);
+        context.restore();
     };
 
     Tank.prototype.move = function() {
-        var UP = 87;    //W
-        var DOWN = 83;  //S
-        var LEFT = 65;  //A
-        var RIGHT = 68; //D
         var dx = 0;
         var dy = 0;
 
