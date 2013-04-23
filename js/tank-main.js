@@ -4,25 +4,36 @@ function main() {
     var GAME_RATE = 1000/60; //fps
     var CANVAS_WITDH = document.getElementById("TankCanvas").width;
     var CANVAS_HEIGHT = document.getElementById("TankCanvas").height;
-    var keys = {};
+    var keysArray = [];
+    keys = {};
     var map;
     var entities;
+    var input;
     var UP = 87;    //W
     var DOWN = 83;  //S
     var LEFT = 65;  //A
     var RIGHT = 68; //D
+    var FIRE = 32;  //space
 
     function inputHandler(e) {
         if (e.type === "keydown") {
             keys[e.keyCode] = true;
+            if (keysArray.indexOf(e.keyCode) === -1) {
+                keysArray.push(e.keyCode);
+            }
         } else if (e.type === "keyup") {
             delete keys[e.keyCode];
+            if (keysArray.indexOf(e.keyCode) !== -1) {
+                keysArray.splice(keysArray.indexOf(e.keyCode), 1);
+            }
         }
+        input.handleEvent(e);
     }
     
     (function init() {
         entities = createEntities();
         map = new Map();
+        input = new Input();
         var canvas = document.getElementById("TankCanvas");
         var context = canvas.getContext("2d");
         canvas.focus();
@@ -43,6 +54,39 @@ function main() {
         entities.push(tank);
         return entities;
     }
+    
+    function Input() {
+        this.keysArray = [];
+    }
+    
+    Input.prototype.isDown = function(key) {
+        for (var i = 0; i < this.keysArray.length; i++) {
+            if (this.keysArray[i] === key) {
+                return true;
+            }
+        }
+        return false;
+    };
+    
+    Input.prototype.handleEvent = function (e) {
+        if (e.type === "keydown") {
+            if (this.keysArray.indexOf(e.keyCode) === -1) {
+                this.keysArray.push(e.keyCode);
+            }
+        } else if (e.type === "keyup") {
+            if (this.keysArray.indexOf(e.keyCode) !== -1) {
+                this.keysArray.splice(this.keysArray.indexOf(e.keyCode), 1);
+            }
+        }
+    };
+    
+    Input.prototype.getLastKey = function() {
+        var keyIndex = Math.max(keysArray.indexOf(UP), 
+                                keysArray.indexOf(DOWN),
+                                keysArray.indexOf(RIGHT),
+                                keysArray.indexOf(LEFT));
+        return this.keysArray[keyIndex];
+    };
 
     function Map() {
         this.xSize = 20;
@@ -136,16 +180,16 @@ function main() {
         }
         this.lastUpdateTime = Date.now();
         
-        if (keys[UP]) {
+        if (input.getLastKey() === UP) {
             this.angle = 0;
         }
-        if (keys[DOWN]) {
+        if (input.getLastKey() === DOWN) {
             this.angle = 180;
         }
-        if (keys[RIGHT]) {
+        if (input.getLastKey() === RIGHT) {
             this.angle = 90;
         }
-        if (keys[LEFT]) {
+        if (input.getLastKey() === LEFT) {
             this.angle = 270;
         }
         context.save();
@@ -157,18 +201,18 @@ function main() {
 
     Tank.prototype.move = function() {
         var dx = 0;
-        var dy = 0;
-
-        if (keys[UP]) {
+        var dy = 0;                               
+        
+        if (input.getLastKey() === UP) {
             dy -= this.speed;
         } 
-        if (keys[DOWN]) {
+        if (input.getLastKey() === DOWN) {
             dy += this.speed;
         } 
-        if (keys[RIGHT]) {
+        if (input.getLastKey() === RIGHT) {
             dx += this.speed;
         } 
-        if (keys[LEFT]) {
+        if (input.getLastKey() === LEFT) {
             dx -= this.speed;
         }
         
@@ -214,19 +258,50 @@ function main() {
 		
 	return true;
     };
+    
+    Tank.prototype.fire = function() {
+        var bullet = new Bullet(this.x, this.y, input.getLastKey());
+        entities.push(bullet);
+    };
 
     Tank.prototype.update = function() {
+        if (input.isDown(FIRE)) {
+            var bullet = new Bullet(this.x, this.y, UP);
+            entities.push(bullet);
+        } 
         this.move();
     };
     
-    function Bullet() {
-        this.x = 0;
-        this.y = 0;
+    function Bullet(x, y, direction) {
+        this.x = x;
+        this.y = y;
+        this.dir = direction;
+        this.speed = 4;
         this.width = 5;
         this.height = 10;
+        this.removed = false;
     }
     
+    Bullet.prototype.update = function() {
+        if (this.dir === UP) {
+            this.y -= this.speed;
+        }
+        if (this.dir === DOWN) {
+            this.y += this.speed;
+        }
+        if (this.dir === RIGHT) {
+            this.x += this.speed;
+        }
+        if (this.dir === LEFT) {
+            this.x -= this.speed;
+        }
+        console.log("inside bullet update");
+    }
     
+    Bullet.prototype.render = function(context) {
+        context.fillStyle = "#FF00FF";
+        context.fillRect(this.x, this.y, this.width, this.height);
+    };
 }
 
 
