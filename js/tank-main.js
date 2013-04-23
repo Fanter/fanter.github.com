@@ -286,9 +286,39 @@ function main() {
         this.shootLimiter += 1;
         
         if (this.shootLimiter > 20) {
-            this.shootLimiter = 0;
-            var bullet = new Bullet(this.x, this.y, this.getDirection());
+            var bulletX;
+            var bulletY;
+            var bulletAngle;
+            var bullet = new Bullet(this.getDirection());
+            
+            switch(this.getDirection()) {
+                case UP:
+                    bulletX = this.x + this.size/2 - bullet.width/2;
+                    bulletY = this.y - bullet.height;
+                    bulletAngle = 0;
+                    break;
+                case DOWN:
+                    bulletX = this.x + this.size/2 - bullet.width/2;
+                    bulletY = this.y + this.size;
+                    bulletAngle = 180;
+                    break;
+                case RIGHT:
+                    bulletX = this.x + this.size + bullet.height/2 - bullet.width/2;
+                    bulletY = this.y + this.size/2 - bullet.height/2;
+                    bulletAngle = 90;
+                    break;
+                case LEFT:
+                    bulletX = this.x - bullet.height/2 - bullet.width/2;
+                    bulletY = this.y + this.size/2 - bullet.height/2;
+                    bulletAngle = 270;
+                    break;
+            }
+            
+            bullet.setX(bulletX);
+            bullet.setY(bulletY);
+            bullet.setAngle(bulletAngle);
             entities.push(bullet);  
+            this.shootLimiter = 0;
         }
     };
 
@@ -299,13 +329,14 @@ function main() {
         this.move();
     };
     
-    function Bullet(x, y, direction) {
-        this.x = x;
-        this.y = y;
+    function Bullet(direction) {
+        this.x = null;
+        this.y = null;
         this.dir = direction;
-        this.speed = 4;
+        this.speed = 3;
         this.width = 5;
         this.height = 10;
+        this.angle = null;
         this.removed = false;
     }
     
@@ -339,10 +370,26 @@ function main() {
     
     Bullet.prototype.render = function(context) {
         if (!this.removed) {
+            context.save();
+            context.translate(this.x + this.width/2, this.y + this.height/2);
+            context.rotate(this.angle * Math.PI/180);
             context.fillStyle = "#FF00FF";
-            context.fillRect(this.x, this.y, this.width, this.height);
+            context.fillRect(-this.width/2, -this.height/2, this.width, this.height);
+            context.restore();
         }
     };
+    
+    Bullet.prototype.setX = function(x) {
+        this.x = x;
+    };
+    
+    Bullet.prototype.setY = function(y) {
+        this.y = y;
+    };
+    
+    Bullet.prototype.setAngle = function(angle) {
+        this.angle = angle;
+    }
 }
 
 
