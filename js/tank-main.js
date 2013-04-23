@@ -48,6 +48,27 @@ function main() {
         }
     })();
     
+    function update() {
+        for (var i = 0; i < entities.length; i++) {
+            if (entities[i].removed) {
+                entities.splice(i, 1);
+                i--;
+            } else {
+                entities[i].update();
+            }
+        }
+    }
+
+    function render(context) {
+        context.fillStyle = "white";
+        context.fillRect(0, 0, CANVAS_WITDH, CANVAS_HEIGHT);
+        
+        map.render(context);
+        for (var i = 0; i < entities.length; i++) {
+            entities[i].render(context);
+        }
+    }
+    
     function createEntities() {
         var entities = [];
         var tank = new Tank();
@@ -136,22 +157,6 @@ function main() {
         return false;
     };
 
-    function update() {
-        for (var i = 0; i < entities.length; i++) {
-            entities[i].update();
-        }
-    }
-
-    function render(context) {
-        context.fillStyle = "white";
-        context.fillRect(0, 0, CANVAS_WITDH, CANVAS_HEIGHT);
-        
-        map.render(context);
-        for (var i = 0; i < entities.length; i++) {
-            entities[i].render(context);
-        }
-    }
-
     function Tank() {
         this.x = 120;
         this.y = 120;
@@ -162,6 +167,7 @@ function main() {
         this.msPerFrame = 15;
         this.summDelta = 0;
         this.lastUpdateTime = 0;
+        this.shootLimiter = 20;
         var img = new Image();
         img.src = 'images/tank_t/tank_sprite.png';
         this.image = img;
@@ -259,15 +265,36 @@ function main() {
 	return true;
     };
     
+    Tank.prototype.getDirection = function() {
+        switch(this.angle) {
+            case 0:
+                return UP;
+                break;
+            case 90:
+                return RIGHT;
+                break;
+            case 180:
+                return DOWN;
+                break;
+            case 270:
+                return LEFT;
+                break;
+        }
+    };
+    
     Tank.prototype.fire = function() {
-        var bullet = new Bullet(this.x, this.y, input.getLastKey());
-        entities.push(bullet);
+        this.shootLimiter += 1;
+        
+        if (this.shootLimiter > 20) {
+            this.shootLimiter = 0;
+            var bullet = new Bullet(this.x, this.y, this.getDirection());
+            entities.push(bullet);  
+        }
     };
 
     Tank.prototype.update = function() {
         if (input.isDown(FIRE)) {
-            var bullet = new Bullet(this.x, this.y, UP);
-            entities.push(bullet);
+            this.fire();
         } 
         this.move();
     };
@@ -295,12 +322,26 @@ function main() {
         if (this.dir === LEFT) {
             this.x -= this.speed;
         }
-        console.log("inside bullet update");
-    }
+        
+        this.checkCollisionsAndBoundary();
+    };
+    
+    Bullet.prototype.checkCollisionsAndBoundary = function() {
+        var padding = 20;
+        
+        if (this.x < 0 - padding 
+                || this.x > CANVAS_WITDH + padding
+                || this.y < 0 - padding
+                || this.y > CANVAS_HEIGHT + padding) {
+            this.removed = true;
+        } 
+    };
     
     Bullet.prototype.render = function(context) {
-        context.fillStyle = "#FF00FF";
-        context.fillRect(this.x, this.y, this.width, this.height);
+        if (!this.removed) {
+            context.fillStyle = "#FF00FF";
+            context.fillRect(this.x, this.y, this.width, this.height);
+        }
     };
 }
 
