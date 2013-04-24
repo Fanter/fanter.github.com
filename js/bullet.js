@@ -3,16 +3,20 @@ function Bullet(direction) {
     this.y = null;
     this.dir = direction;
     this.speed = 3;
-    this.width = 16;
-    this.height = 16;
+    this.width = 8;
+    this.height = 12;
     this.angle = null;
     this.removed = false;
-    var img = new Image();
-    img.src = "images/missile/missile.png";
     this.image = Art.bullet;
 }
 
 Bullet.prototype.update = function() {
+    this.move();
+    this.checkCollisions();
+    this.checkIfInsideWindowBounds();
+};
+
+Bullet.prototype.move = function() {
     if (this.dir === Input.UP) {
         this.y -= this.speed;
     }
@@ -25,11 +29,13 @@ Bullet.prototype.update = function() {
     if (this.dir === Input.LEFT) {
         this.x -= this.speed;
     }
-
-    this.checkCollisionsAndBoundary();
 };
 
-Bullet.prototype.checkCollisionsAndBoundary = function() {
+Bullet.prototype.checkCollisions = function() {
+
+};
+
+Bullet.prototype.checkIfInsideWindowBounds = function() {
     var padding = 20;
 
     if (this.x < 0 - padding 
@@ -45,7 +51,7 @@ Bullet.prototype.render = function(context) {
         context.save();
         context.translate(this.x + this.width/2, this.y + this.height/2);
         context.rotate(this.angle * Math.PI/180);
-        context.drawImage(this.image, 0, 0, 16, 16, -this.width/2, -this.height/2, 16, 16);
+        context.drawImage(this.image, 0, 0, 8, 12, -this.width/2, -this.height/2, 8, 12);
         context.restore();
     }
 };

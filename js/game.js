@@ -2,43 +2,40 @@ Game = (function() {
     var GAME_RATE = 1000/60; //fps
     var canvas = document.getElementById("TankCanvas");
     var context = canvas.getContext("2d");
-
-    function inputHandler(e) {
-        Input.handleEvent(e);
-    }
+    var entities = [];
     
     function initialize() {
-        this.entities = createEntities();
+        entities = createEntities();
         canvas.focus();
-        canvas.addEventListener("keydown", inputHandler, false);
-        canvas.addEventListener("keyup", inputHandler, false);
+        canvas.addEventListener("keydown", Input.handleEvent.bind(Input), false);
+        canvas.addEventListener("keyup", Input.handleEvent.bind(Input), false);
 
-        setInterval(this.gameLoop.bind(this), GAME_RATE);
+        setInterval(gameLoop, GAME_RATE);
     }
     
-    function gameLoop() {
-        this.update();
-        this.render(context);
-    }
+    var gameLoop = function() {
+        update();
+        render(context);
+    };
     
     function update() {
-        for (var i = 0; i < this.entities.length; i++) {
-            if (this.entities[i].removed) {
-                this.entities.splice(i, 1);
+        for (var i = 0; i < entities.length; i++) {
+            if (entities[i].removed) {
+                entities.splice(i, 1);
                 i--;
             } else {
-                this.entities[i].update();
+                entities[i].update();
             }
         }
     }
 
     function render(context) {
         context.fillStyle = "white";
-        context.fillRect(0, 0, this.CANVAS_WITDH, this.CANVAS_HEIGHT);
+        context.fillRect(0, 0, this.WITDH, this.HEIGHT);
         
         Map.render(context);
-        for (var i = 0; i < this.entities.length; i++) {
-            this.entities[i].render(context);
+        for (var i = 0; i < entities.length; i++) {
+            entities[i].render(context);
         }
     }
     
@@ -49,15 +46,14 @@ Game = (function() {
         return entities;
     }
     
+    function addEntity(entity) {
+        entities.push(entity);
+    }
+    
     return {
-        CANVAS_WITDH: document.getElementById("TankCanvas").width,
-        CANVAS_HEIGHT: document.getElementById("TankCanvas").height,
-        entities: [],
+        WITDH: document.getElementById("TankCanvas").width,
+        HEIGHT: document.getElementById("TankCanvas").height,
         initialize: initialize,
-        update: update,
-        render: render,
-        createEntities: createEntities,
-        inputHandler: inputHandler,
-        gameLoop: gameLoop
+        addEntity: addEntity
     };
 })();

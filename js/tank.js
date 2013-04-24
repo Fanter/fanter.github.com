@@ -134,6 +134,9 @@ Tank.prototype.fire = function() {
         var bulletY;
         var bulletAngle;
         var bullet = new Bullet(this.getDirection());
+        
+        Sound.getSound("shoot").currentTime = 0;
+        Sound.getSound("shoot").play();
 
         switch(this.getDirection()) {
             case Input.UP:
@@ -161,7 +164,7 @@ Tank.prototype.fire = function() {
         bullet.setX(bulletX);
         bullet.setY(bulletY);
         bullet.setAngle(bulletAngle);
-        Game.entities.push(bullet);  
+        Game.addEntity(bullet);  
         this.shootLimiter = 0;
     }
 };

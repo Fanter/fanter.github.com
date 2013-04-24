@@ -46,7 +46,7 @@ Map = (function() {
     
     return {
         xSize: 20,
-        ySize:15,
+        ySize: 15,
         map: map,
         render: render,
         isBlocked: isBlocked
