@@ -9,7 +9,7 @@ function Bullet(direction) {
     this.removed = false;
     var img = new Image();
     img.src = "images/missile/missile.png";
-    this.image = img;
+    this.image = Art.bullet;
 }
 
 Bullet.prototype.update = function() {
