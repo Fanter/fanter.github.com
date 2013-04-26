@@ -14,6 +14,13 @@ function Tank() {
     this.image = img;
 }
 
+Tank.prototype.update = function() {
+    if (Input.isDown(Input.FIRE)) {
+        this.fire();
+    } 
+    this.move();
+};
+
 Tank.prototype.render = function(context) {
     var delta = Date.now() - this.lastUpdateTime;
     if (this.summDelta > this.msPerFrame && this.isMoving()) {
@@ -169,11 +176,5 @@ Tank.prototype.fire = function() {
     }
 };
 
-Tank.prototype.update = function() {
-    if (Input.isDown(Input.FIRE)) {
-        this.fire();
-    } 
-    this.move();
-};
 
 

@@ -18,7 +18,7 @@ var Input = (function() {
             if (this.keysArray.indexOf(e.keyCode) !== -1) {
                 this.keysArray.splice(this.keysArray.indexOf(e.keyCode), 1);
             }
-        }
+        } 
     }
 
     function getLastKey() {

@@ -10,8 +10,13 @@ Sound = (function() {
         return sample;
     }
     
+    function setVolume(newVolume) {
+        volume = newVolume;
+    }
+    
     return {
-        getSound: getSound
+        getSound: getSound,
+        setVolume: setVolume
     };
 })();
 

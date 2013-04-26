@@ -9,7 +9,6 @@ Game = (function() {
         canvas.focus();
         canvas.addEventListener("keydown", Input.handleEvent.bind(Input), false);
         canvas.addEventListener("keyup", Input.handleEvent.bind(Input), false);
-
         setInterval(gameLoop, GAME_RATE);
     }
     
@@ -42,7 +41,12 @@ Game = (function() {
     function createEntities() {
         var entities = [];
         var tank = new Tank();
+        var soundIcon = new SoundIcon();
+        
+        canvas.addEventListener("click", soundIcon.onClick.bind(soundIcon), false);
+        
         entities.push(tank);
+        entities.push(soundIcon);
         return entities;
     }
     
