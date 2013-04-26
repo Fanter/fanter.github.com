@@ -44,6 +44,7 @@ Game = (function() {
         var soundIcon = new SoundIcon();
         
         canvas.addEventListener("click", soundIcon.onClick.bind(soundIcon), false);
+        canvas.addEventListener("mousemove", soundIcon.onMouseMove.bind(soundIcon), false);
         
         entities.push(tank);
         entities.push(soundIcon);

@@ -14,13 +14,13 @@ SoundIcon.prototype.update = function() {
             Sound.setVolume(0);
             break;
         case 2:
-            Sound.setVolume(0.35);
+            Sound.setVolume(0.2);
             break;
         case 1:
-            Sound.setVolume(0.7);
+            Sound.setVolume(0.5);
             break;
         case 0:
-            Sound.setVolume(1);
+            Sound.setVolume(0.8);
             break;
     };
 };
@@ -44,12 +44,18 @@ SoundIcon.prototype.onClick = function(e) {
     }
 };
 
-SoundIcon.prototype.onMouseOver = function(e) {
+SoundIcon.prototype.onMouseMove = function(e) {
+    var canvas = document.getElementById("TankCanvas");
+    var x = e.pageX - canvas.offsetLeft;
+    var y = e.pageY - canvas.offsetTop;
     
+    if (x > this.x && x < this.x + this.width
+                   && y > this.y && y < this.y + this.height) {
+        this.transparency = 1.0;
+    } else {
+        this.transparency = 0.5;
+    }
 };
 
-SoundIcon.prototype.onMouseOut = function(e) {
-    
-}
 
 
