@@ -2,7 +2,7 @@ function Bullet(direction) {
     this.x = null;
     this.y = null;
     this.dir = direction;
-    this.speed = 3;
+    this.speed = 6;
     this.width = 8;
     this.height = 12;
     this.angle = null;

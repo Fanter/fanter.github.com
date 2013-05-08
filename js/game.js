@@ -1,5 +1,5 @@
 Game = (function() {
-    var GAME_RATE = 1000/60; //fps
+    var GAME_RATE = 1000/30; //fps
     var canvas = document.getElementById("TankCanvas");
     var context = canvas.getContext("2d");
     var entities = [];
@@ -29,8 +29,7 @@ Game = (function() {
     }
 
     function render(context) {
-        context.fillStyle = "white";
-        context.fillRect(0, 0, this.WITDH, this.HEIGHT);
+        context.clearRect(0, 0, this.WITDH, this.HEIGHT);
         
         Map.render(context);
         for (var i = 0; i < entities.length; i++) {

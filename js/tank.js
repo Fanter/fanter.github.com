@@ -1,9 +1,9 @@
 function Tank() {
     this.x = 120;
     this.y = 120;
-    this.size = 36;
+    this.size = 32;
     this.angle = 0;
-    this.speed = 2;
+    this.speed = 4;
     this.frame = 0;
     this.msPerFrame = 15;
     this.summDelta = 0;
@@ -47,7 +47,8 @@ Tank.prototype.render = function(context) {
     context.save();
     context.translate(this.x + this.size/2, this.y + this.size/2);
     context.rotate(this.angle * Math.PI/180);
-    context.drawImage(this.image, 0, 36*this.frame, 36, 36, -this.size/2, -this.size/2, 36, 36);
+    context.drawImage(this.image, 0, 36*this.frame, 36, 36, 
+                        -this.size/2, -this.size/2, this.size, this.size);
     context.restore();
 };
 
