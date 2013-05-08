@@ -20,6 +20,9 @@ Map = (function() {
         var width = document.getElementById("TankCanvas").width/this.xSize;
 
         for (var i = 0; i < this.map.length; i++) {
+            var x = (i % this.xSize) * width;
+            var y = Math.floor(i / this.xSize) * width;
+            
             switch(this.map[i]) {
             case 0:
                 context.fillStyle = "#00CC00";
@@ -31,10 +34,27 @@ Map = (function() {
                 context.fillStyle = "#B20000";
                 break;
             }
-
-            context.fillRect((i % this.xSize) * width , Math.floor(i / this.xSize) * width, width, width);
-            context.fillStyle = "#000000";
-            context.strokeRect((i % this.xSize) * width , Math.floor(i / this.xSize) * width, width, width);
+            
+            if (this.map[i] === 2) {
+                context.save();
+                context.translate(x + width/2, y + width/2);
+                context.drawImage(Art.brick, 0, 0, 32, 32, -width/2, -width/2, width, width);
+                context.restore();
+            } else if (this.map[i] === 0) {
+                context.save();
+                context.translate(x + width/2, y + width/2);
+                context.drawImage(Art.grass, 0, 0, 32, 32, -width/2, -width/2, width, width);
+                context.restore();
+            } else if (this.map[i] === 1) {
+                context.save();
+                context.translate(x + width/2, y + width/2);
+                context.drawImage(Art.water, 0, 0, 32, 32, -width/2, -width/2, width, width);
+                context.restore();                
+            } else {
+                context.fillRect((i % this.xSize) * width , Math.floor(i / this.xSize) * width, width, width);
+                context.fillStyle = "#000000";
+                context.strokeRect((i % this.xSize) * width , Math.floor(i / this.xSize) * width, width, width);
+            }
         }//for
     }
 

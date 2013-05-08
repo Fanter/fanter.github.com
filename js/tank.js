@@ -9,9 +9,7 @@ function Tank() {
     this.summDelta = 0;
     this.lastUpdateTime = 0;
     this.shootLimiter = 20;
-    var img = new Image();
-    img.src = 'images/tank_t/tank_sprite.png';
-    this.image = img;
+    this.image = Art.tank;
 }
 
 Tank.prototype.update = function() {
